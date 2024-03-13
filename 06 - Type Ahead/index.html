@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://fav.farm/🔥" />
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+      <li>Filter for a city</li>
+      <li>Filter for a city</li>
+      <li>or a state</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    const cities = [];
+    fetch(endpoint).then(response => response.json()).then(data => cities.push(...data)).catch(err => console.log(err));
+
+    const suggestions = document.querySelector('.suggestions')
+    const input = document.querySelector(".search");
+
+    input.addEventListener('input', searchQuery)
+
+    function searchQuery(event) {
+      const searchResult = getData(event.target.value, cities);
+      generateListItems(searchResult, event.target.value);
+    }
+
+    function generateListItems(data, query) {
+      const regex = new RegExp(query, 'ig');
+      const html = data.map(element => {
+        const cityName = element.city.replace(regex, `<span class='hl'>${query}</span>`);
+        const stateName = element.state.replace(regex, `<span class='hl'>${query}</span>`);
+        return `<li>
+          <span>${cityName}, ${stateName}</span>
+          <span>${numberWithCommas(element.population)}</span>
+            </li>`
+      }).join('');
+      suggestions.innerHTML = html;
+    }
+
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function getData(query, data) {
+      const regex = new RegExp(query, 'gi');
+      const result = data.filter((element) => {
+        return element.city.match(regex) || element.state.match(regex)
+      })
+      return result;
+    }
+
+  </script>
+</body>
+
+</html>
