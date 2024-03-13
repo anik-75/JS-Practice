@@ -30,7 +30,18 @@
     const suggestions = document.querySelector('.suggestions')
     const input = document.querySelector(".search");
 
-    input.addEventListener('input', searchQuery)
+    input.addEventListener('input', debounce(searchQuery, 300));
+
+    function debounce(fn, delay) {
+      let timerId;
+      return function (...args) {
+        const context = this;
+        clearTimeout(timerId);
+        timerId = setTimeout(() => {
+          fn.apply(context, args);
+        }, delay);
+      }
+    }
 
     function searchQuery(event) {
       const searchResult = getData(event.target.value, cities);
